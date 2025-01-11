@@ -12,14 +12,12 @@ class CreateUserView(APIView):
         serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            # Generate JWT tokens
+
             refresh = RefreshToken.for_user(user)
-            tokens = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }
+            
             return Response(
-                {'message': 'User created successfully.', 'data':user,'tokens': tokens},
+                {'message': 'User created successfully.', 'data':serializer.data, 'refresh': str(refresh),
+                'access': str(refresh.access_token),},
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
