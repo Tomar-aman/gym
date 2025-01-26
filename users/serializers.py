@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,OTP
+from .models import User,OTP ,Address
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .utils import send_otp_email
@@ -84,10 +84,16 @@ class VerifyOTPSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'phone_number', 'full_name', 'weight', 'height', 'dob', 'role', 'is_verified', 'photo','address']
+        fields = ['id','email', 'phone_number', 'full_name', 'weight', 'height', 'dob', 'role', 'is_verified', 'photo','address']
 
     # Optionally, you can add custom fields like the address:
     address = serializers.SerializerMethodField()
 
     def get_address(self, obj):
         return obj.address.street if obj.address else None
+    
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ['id', 'street', 'city', 'state', 'country', 'postal_code']
