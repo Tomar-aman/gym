@@ -1,11 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import CreateUserSerializer , LoginSerializer , SendOTPSerializer ,VerifyOTPSerializer , UserSerializer
+from .serializers import CreateUserSerializer , LoginSerializer , SendOTPSerializer ,VerifyOTPSerializer , UserSerializer , ChangePasswordSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny , IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+from .models import User
+
 class CreateUserView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
@@ -76,4 +78,50 @@ class SendVerifyEmailAPI(APIView):
                 return Response({"message": "OTP verified successfully. User is now verified."}, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response({"error": f"An unexpected error occurred. Please try again later.{e}",}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RequestPasswordResetOTPAPI(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = SendOTPSerializer()
+        try:
+            user = User.objects.get(email=request.data['email'])
+            serializer.save(user,subject='Reset Your Password',template='mail/reset-password-otp.html')
+            return Response({"message": "OTP sent to email successfully."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+class VerifyResetPasswordOTPAPI(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = VerifyOTPSerializer(data=request.data)
+        if serializer.is_valid():
+            otp = serializer.validated_data['otp']
+            try:
+                serializer.otp_delete(otp)
+                return Response({"message": "OTP verified successfully. User can change password"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"error": f"An unexpected error occurred. Please try again later.{e}",}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordAPI(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            new_password = serializer.validated_data['new_password']
+            try:
+                user = User.objects.get(email=email)
+                user.set_password(new_password)
+                user.save()
+                return Response({"message": "Password has been changed successfully."}, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({"error": "User with this email does not exist."}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                return Response({"error": f"An unexpected error occurred. Please try again later.{e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

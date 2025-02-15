@@ -2,13 +2,13 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from gym import settings
 
-def send_otp_email(user, otp_code):
-    subject = "Verify Your Email Address"
+def send_otp_email(user, otp_code,subject,template):
+    subject = subject
     user_name = user.full_name or "User"
 
     # Render the HTML template
     html_message = render_to_string(
-        'mail/otp.html', 
+        template, 
         {
             'user_name': user_name,  # Pass user name to template
             'otp_code': otp_code,    # Pass OTP code to template

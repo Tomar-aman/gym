@@ -54,7 +54,7 @@ class OTP(models.Model):
 
     @property
     def is_otp_expired(self):
-        return now() < (self.created_at + timedelta(minutes=10))
+        return now() > (self.created_at + timedelta(minutes=10))
 
     def generate_otp(self):
         self.otp_code = f"{random.randint(100000, 999999)}"

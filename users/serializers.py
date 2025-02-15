@@ -52,12 +52,12 @@ class LoginSerializer(serializers.Serializer):
         }
 
 class SendOTPSerializer(serializers.Serializer):
-    def save(self, user):
+    def save(self, user,subject='Verify Your Email Address' ,template='mail/otp.html'):
         # Save OTP to database
         otp, created = OTP.objects.get_or_create(user=user)
         otp.generate_otp()
         # Send OTP email
-        send_otp_email(user, otp.otp_code)
+        send_otp_email(user, otp.otp_code,subject,template)
 
 
 class VerifyOTPSerializer(serializers.Serializer):
@@ -81,6 +81,9 @@ class VerifyOTPSerializer(serializers.Serializer):
         # Delete the OTP after verification
         otp.delete()
 
+    def otp_delete(self, otp):
+        otp.delete()
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -97,3 +100,7 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = ['id', 'street', 'city', 'state', 'country', 'postal_code']
+
+class ChangePasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(write_only=True)
