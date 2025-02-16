@@ -31,6 +31,7 @@ class GymPlan(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
+    duration = models.IntegerField(help_text="Duration in days",null=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -43,7 +44,7 @@ class GymProduct(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True,null=True )
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

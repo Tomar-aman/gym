@@ -111,15 +111,32 @@ class GymPlanAPI(APIView):
 
     def get(self, request):
         gym_id = request.query_params.get('gym_id')
-        print(gym_id)
         if gym_id:
-            plans = GymPlan.objects.filter(gym__owner=request.user)
-
-            if gym_id:
-                plans = plans.filter(gym_id=gym_id)
-
+            plans = GymPlan.objects.filter(gym__owner=request.user, gym__id=gym_id)
             serializer = GymPlanSerializer(plans, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"error": "gym_id query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request, pk):
+        try:
+            plan = GymPlan.objects.get(pk=pk, gym__owner=request.user)
+        except GymPlan.DoesNotExist:
+            return Response({"error": "Gym plan not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = GymPlanSerializer(plan, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            plan = GymPlan.objects.get(pk=pk, gym__owner=request.user)
+        except GymPlan.DoesNotExist:
+            return Response({"error": "Gym plan not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        plan.delete()
+        return Response({"message": "Gym plan deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 
 class GymProductAPI(APIView):

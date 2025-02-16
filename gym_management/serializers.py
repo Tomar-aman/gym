@@ -16,7 +16,7 @@ class GymImageSerializer(serializers.ModelSerializer):
 class GymPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = GymPlan
-        fields = ['id', 'name', 'price', 'description', 'gym']
+        fields = ['id', 'name', 'price', 'description', 'gym' , 'duration']
 
     def validate_price(self, value):
         if value < 0:

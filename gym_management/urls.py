@@ -13,6 +13,7 @@ urlpatterns = [
      path('<int:gym_id>/upload-image/', GymImageUploadAPI.as_view(), name='gym_upload_image'),
     path('gyms/<int:pk>/', GymDetailAPI.as_view(), name='gym_detail'),
     path('plans/', GymPlanAPI.as_view(), name='gym_plans'),
+    path('plans/<int:pk>/', GymPlanAPI.as_view(), name='gym_plan'),
     path('products/', GymProductAPI.as_view(), name='gym_products'),
     path('memberships/', GymMemberAPI.as_view(), name='gym_memberships'),
 ]

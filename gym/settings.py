@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'users',
-    'gym_management'
+    'gym_management',
+    'gym_members'
 ]
 
 
