@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import GymMembersByOwner
+from .models import GymMembersByOwner ,UserGymPlan
 from users.serializers import AddressSerializer , Address
 
 class GymMemberSerializer(serializers.ModelSerializer):
@@ -28,3 +28,14 @@ class GymMemberSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
+class UserGymPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserGymPlan
+        fields = '__all__'
+
+    def validate(self, data):
+        if not data.get("offline_member") and not data.get("online_member"):
+            raise serializers.ValidationError("You must assign the plan to either an offline or online member.")
+        if data.get("offline_member") and data.get("online_member"):
+            raise serializers.ValidationError("A gym plan can only be assigned to either an offline or online member, not both.")
+        return data
